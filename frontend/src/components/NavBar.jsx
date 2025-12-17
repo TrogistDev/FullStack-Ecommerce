@@ -11,8 +11,8 @@ const NavBar = () => {
     return (
         <header className="bg-opacity-90 fixed top-0 left-0 z-40 w-full border-b border-emerald-800 bg-gray-900 shadow-lg backdrop-blur-md transition-all duration-300">
             <div className="container mx-auto px-4 py-3">
-                <div className="flex flex-wrap items-center justify-between">
-                    <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-emerald-400 max-[427px]:mb-8">
+                <div className="flex flex-wrap items-center justify-between max-[440px]:text-center min-[440px]:flex-row min-[440px]:justify-between">
+                    <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-emerald-400 max-[440px]:mb-8">
                         <Vegan className="mr-1 inline-block" size={30} /> E-Commerce
                     </Link>
 
