@@ -117,6 +117,8 @@ res.cookie("accessToken", accessToken,{
 res.json({accessToken})
 
 } catch (error) {
+    res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
   console.log(error, "error in refreshing token controller");
   res.status(500).json({message:error.message})
 }
