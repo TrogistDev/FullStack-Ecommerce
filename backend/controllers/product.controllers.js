@@ -23,14 +23,20 @@ export const getFeaturedProducts = async (req, res) => {
     }
 
     await redis.set("featured_products", JSON.stringify(featuredProducts));
-  } catch (error) {}
+
+    res.json(featuredProducts);
+  } catch (error) {
+    
+		console.log("Error in getFeaturedProducts controller", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, image, category } = req.body;
     let cloudinaryResponse = null;
     if (image) {
-      await cloudinary.uploader.upload(image, { folder: "products" });
+     cloudinaryResponse = await cloudinary.uploader.upload(image, { folder: "products" });
     }
     const product = await Product.create({
       name,
@@ -70,7 +76,7 @@ export const deleteProduct = async (req,res) => {
 export const getRecommendedProducts = async (req,res) => {
     try {
         const products = await Product.aggregate([
-            {$sample:{size:3}},
+            {$sample:{size:4}},
             {$project:{
                 _id:1,
                 name:1,
@@ -104,8 +110,10 @@ export const toggleFeaturedProduct = async (req,res) => {
             product.isFeatured = !product.isFeatured
             const updatedProduct = await product.save()
             await updateFeaturedProductsCache()
-            res.json({message: "Product not found" })
-        }
+            res.json(updatedProduct)
+        } else {
+            res.status(404).json({message:"Product not found"})
+          }
     } catch (error) {
         console.log(error.message,"error in toggleFeaturedProduct controller");
         res.status(500).json({message:error.message})
@@ -117,6 +125,6 @@ async function updateFeaturedProductsCache() {
         await redis.set("featured_products", JSON.stringify(featuredProducts));
     } catch (error) {
         console.log(error.message,"error in updateFeaturedProductsCache controller");
-        res.status(500).json({message:error.message})
+        
     }
 }

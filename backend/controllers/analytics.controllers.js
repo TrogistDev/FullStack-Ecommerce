@@ -2,8 +2,8 @@ import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import User from "../models/user.model.js";
 export const getAnalyticsData = async () => {
-  const totalUsers = await User.CountDocuments();
-  const totalProducts = await Product.CountDocuments();
+  const totalUsers = await User.countDocuments();
+  const totalProducts = await Product.countDocuments();
   const salesData = await Order.aggregate([
     {
       $group: {
@@ -21,7 +21,7 @@ export const getAnalyticsData = async () => {
     revenue:totalRevenue
   }
 };
-export const getDailySalesData = async () =>{
+export const getDailySalesData = async (startDate,endDate) =>{
     try {
         const dailySalesData = await Order.aggregate([
         {
@@ -34,7 +34,7 @@ export const getDailySalesData = async () =>{
         },
         {
             $group:{
-                _id: {$dateToString:{ format: " %Y-%m-%d", date: "$createdAt"}},
+                _id: {$dateToString:{ format: "%Y-%m-%d", date: "$createdAt"}},
                 sales: {$sum:1},
                 revenue: {$sum:"$totalAmount"},
             },
@@ -56,7 +56,7 @@ export const getDailySalesData = async () =>{
 }
 function getDatesInRange(startDate,endDate){
     const dates = []
-    let currentDate = newDate(startDate)
+    let currentDate = new Date(startDate)
     while (currentDate <= endDate){
         dates.push(currentDate.toISOString().split("T")[0])
         currentDate.setDate(currentDate.getDate() + 1)

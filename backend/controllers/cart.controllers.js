@@ -2,11 +2,11 @@ import Product from "../models/product.model.js";
 
 export const getCartProducts = async (req, res) => {
      try {
-        const products = await Product.find({_id:{$in:req.user.cartItem  }})
+        const products = await Product.find({_id:{$in:req.user.cartItems  }})
 
         //add quantity for each product
         const cartItems = products.map(product => {
-            const item = req.user.carItems.find(cartItem => cartItem.id === product.id)
+            const item = req.user.cartItems.find(cartItems => cartItems.id === product.id)
             return {...product.toJSON(), quantity: item.quantity}
         })
         res.json(cartItems)
@@ -21,14 +21,14 @@ export const addToCart = async (req, res) => {
     try {
     const {productId} = req.body   
     const user = req.user
-    const existingItem = user.cartItem.find(item => item.id === productId)
+    const existingItem = user.cartItems.find(item => item.id === productId)
     if(existingItem){
-        existingItem.quantity++
+        existingItem.quantity+=1
     } else {
-        user.cartItem.push(productId)
+        user.cartItems.push(productId)
     }
     await user.save()
-    res.json(user.cartItem)
+    res.json(user.cartItems)
     } catch (error) {
         console.log(error.message,"error in addToCart controller");
         res.status(500).json({message:error.message})
@@ -40,12 +40,12 @@ try {
     const {productId} = req.body
     const user = req.user
     if(!productId){
-        user.cartItem = []
+        user.cartItems = []
     } else {
-        user.cartItem = user.cartItem.filter(item => item.id !== productId)
+        user.cartItems = user.cartItems.filter(item => item.id !== productId)
     }
     await user.save()
-    res.json(user.cartItem)
+    res.json(user.cartItems)
 } catch (error) {
     console.log(error.message,"error in removeAllFromCart controller");
     res.status(500).json({message:error.message})
@@ -58,16 +58,16 @@ export const updateQuantity = async (req, res) => {
         const {id:productId} = req.params
         const {quantity} = req.body
         const user = req.user
-        const existingItem = user.cartItem.find(item => item.id === productId)
+        const existingItem = user.cartItems.find(item => item.id === productId)
         if(existingItem){
             if(quantity === 0){
-                user.cartItem = user.cartItem.filter(item => item.id !== productId)
+                user.cartItems = user.cartItems.filter(item => item.id !== productId)
                 await user.save()
-                return res.json(user.cartItem)
+                return res.json(user.cartItems)
             }
             existingItem.quantity = quantity
             await user.save()
-            return res.json(user.cartItem)
+            return res.json(user.cartItems)
         } else {
             return res.status(404).json({message:"Product not found"})
         }

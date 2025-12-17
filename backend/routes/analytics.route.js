@@ -1,14 +1,18 @@
 import express from "express"
 import { adminRoute, protectRoute } from "../middleware/auth.middleware.js"
+import { getAnalyticsData, getDailySalesData } from "../controllers/analytics.controllers.js"
 
 const router = express.Router()
 
 router.get("/", protectRoute,adminRoute, async(req,res) => {
     try {
+        console.log("Iniciando busca de analytics...");
         const analyticsData = await getAnalyticsData()
+        console.log("Analytics ok. Buscando vendas diárias...");
         const endDate = new Date()
         const startDate = new Date(endDate.getTime() -7 * 24*60*60*1000)
-        const dailySalesData = await getDailySalesData()
+        const dailySalesData = await getDailySalesData(startDate,endDate)
+        console.log("Vendas ok.");
         res.json({analyticsData,dailySalesData})
     } catch (error) {
         console.log(error.message,"error in analytics route");
